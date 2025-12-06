@@ -21,6 +21,7 @@ interface ImageResult {
 interface UsePdfProcessorOptions {
   type: "text" | "image";
   scale?: number;
+  textOption?: 'fullText' | 'page';
 }
 
 function throttle<T extends (...args: any[]) => any>(
@@ -38,8 +39,8 @@ function throttle<T extends (...args: any[]) => any>(
 }
 
 export function usePdfProcessor(options: UsePdfProcessorOptions) {
-  const { type, scale } = options;
-  
+  const { type, scale, textOption } = options;
+
   const [text, setText] = useState<TextResult | null>(null);
   const [images, setImages] = useState<ImageResult[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -201,6 +202,7 @@ export function usePdfProcessor(options: UsePdfProcessorOptions) {
             type: "text",
             buffer: ab,
             minLength: 10,
+            textOption,
           },
           [ab]
         );

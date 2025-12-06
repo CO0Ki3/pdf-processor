@@ -4,10 +4,11 @@ import { useState } from "react";
 export default function App() {
   const [mode, setMode] = useState<"text" | "image">("text");
   const [scale, setScale] = useState(1.5);
-
+  const [textOption, setTextOption] = useState<"fullText" | "page">("fullText");
   const extractor = usePdfProcessor({
     type: mode,
     scale: mode === "image" ? scale : undefined,
+    textOption: textOption,
   });
 
   return (
@@ -27,7 +28,7 @@ export default function App() {
           />
           <span style={{ marginLeft: "0.5rem" }}>텍스트 추출</span>
         </label>
-        <label>
+        <label style={{ marginRight: "1rem" }}>
           <input
             type="radio"
             value="image"
@@ -36,6 +37,15 @@ export default function App() {
             disabled={extractor.isWorking}
           />
           <span style={{ marginLeft: "0.5rem" }}>이미지 변환</span>
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={textOption === "page"}
+            onChange={(e) => setTextOption(e.target.checked ? "page" : "fullText")}
+            disabled={extractor.isWorking}
+          />
+          <span style={{ marginLeft: "0.5rem" }}>페이지 별 텍스트 추출 (기본: 전체 텍스트)</span>
         </label>
       </div>
 
@@ -113,7 +123,24 @@ export default function App() {
           </div>
           {extractor.text.sample && (
             <div style={{ marginTop: "1rem" }}>
-              <strong style={{ color: "#000" }}>샘플 텍스트:</strong>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <strong style={{ color: "#000" }}>샘플 텍스트:</strong>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(JSON.stringify(extractor.text?.sample));
+                  }}
+                  style={{
+                    padding: "0.25rem 0.75rem",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  복사하기
+                </button>
+              </div>
               <pre
                 style={{
                   whiteSpace: "pre-wrap",
@@ -127,9 +154,10 @@ export default function App() {
                   overflow: "auto",
                 }}
               >
-                {extractor.text.sample}
+                {JSON.stringify(extractor.text.sample)}
               </pre>
             </div>
+            
           )}
         </div>
       )}
